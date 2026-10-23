@@ -69,7 +69,13 @@ The bundled catalog photos are demonstration content. Replace them with product,
 
 ## Deployment notes
 
-Build the Angular frontend with `npm run build` inside `frontend`; publish `frontend/dist/nirvana/browser` on a static host with SPA fallback to `index.html`. Deploy the API separately from `backend` with persistent MongoDB replica-set access. Configure TLS at the hosting layer, a strong unique JWT secret, a restricted CORS origin, HTTPS-only domains, monitoring, backups, and rate limits. Never commit `.env` files or provider secrets.
+The repository includes `render.yaml` for the backend web service. Push the repository to GitHub, then in Render choose **New → Blueprint** and select `nirvana678/Nirvana`. Render reads the Blueprint and creates the API service in Frankfurt, with `/api/health` as its deploy health check. Enter a production MongoDB Atlas replica-set URI for `MONGODB_URI` and the Cloudinary, PayHero and callback settings requested by the Blueprint. Never use the local `127.0.0.1` MongoDB URI on Render; it refers to the Render container itself. Keep `.env` files and provider secrets out of Git.
+
+The Blueprint uses Render's Free plan to allow a no-cost initial deployment. Render spins Free web services down after 15 minutes without inbound traffic, so the first request after inactivity can take time. Upgrade the service to a paid instance for a continuously available live checkout. The backend needs a MongoDB replica set for checkout and appointment transactions; use a managed MongoDB Atlas cluster in a region close to Frankfurt.
+
+The frontend production build calls `https://api.nirvanabeautyshop.com/api`. After Render creates the API, add `api.nirvanabeautyshop.com` in the service's **Settings → Custom Domains**, then add the exact DNS record Render provides in Namecheap Advanced DNS. Wait for Render to verify the domain and issue TLS before testing the custom API URL. Host the frontend separately on Cloudflare Pages at `nirvanabeautyshop.com`; the API allows the root and `www` origins in CORS. Publish `frontend/dist/nirvana/browser` and configure SPA fallback to `index.html`.
+
+Do not start online payment collection until the public API domain is live and reachable, `PUBLIC_API_URL` is set to `https://api.nirvanabeautyshop.com`, and the PayHero callback is verified. Cloudinary credentials must be set on Render for admin image uploads to persist. Configure monitoring, backups and rate limits before launch.
 
 ## Current implementation scope
 
