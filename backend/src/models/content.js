@@ -5,7 +5,7 @@ const sectionSchema = new Schema({
   kind: { type: String, enum: ['hero', 'categories', 'products', 'salon', 'artists', 'services', 'brands', 'trust'], required: true },
   title: String, subtitle: String, accent: String, image: String,
   buttonLabel: String, buttonLink: String, secondaryLabel: String, secondaryLink: String,
-  category: String, saleOnly: { type: Boolean, default: false },
+  category: String, saleOnly: { type: Boolean, default: false }, featuredProducts: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
   limit: { type: Number, default: 5 }, sortOrder: { type: Number, default: 0 },
   enabled: { type: Boolean, default: true }
 }, { timestamps: true });
