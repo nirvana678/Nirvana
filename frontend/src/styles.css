@@ -13,6 +13,26 @@
 
 .studio-sidebar{min-width:0}.studio-card{min-width:0}.studio-card p{overflow-wrap:anywhere}@media(max-width:760px){.admin-shell{grid-template-columns:minmax(0,1fr)}}
 
+@media(max-width:760px){
+ .homepage{display:flex;flex-direction:column;gap:14px}
+ .homepage>.sale-section{order:-2}
+ .homepage>.hero{order:-1}
+ .homepage>.sale-section{padding:17px 12px 12px;border-radius:14px}
+ .homepage>.sale-section .section-heading{align-items:center;margin-bottom:12px}
+ .homepage>.sale-section .heading-with-icon{gap:8px}
+ .homepage>.sale-section .heading-with-icon>n-icon{width:26px;height:26px}
+ .homepage>.sale-section .section-heading h2{font-size:20px}
+ .homepage>.sale-section .section-heading p{font-size:9px}
+ .homepage>.sale-section .sale-track{gap:11px;margin:0 -3px;padding:3px 3px 12px;scrollbar-width:none}
+ .homepage>.sale-section .sale-track::-webkit-scrollbar{display:none}
+ .homepage>.sale-section .sale-track .product-card{flex:0 0 82%;padding:10px;border-radius:11px;scroll-snap-align:center}
+ .homepage>.sale-section .sale-track .product-image{height:245px;border-radius:8px}
+ .homepage>.sale-section .sale-track .product-info{padding:11px 3px 3px}
+ .homepage>.sale-section .sale-track .product-info h3{font-size:13px;min-height:36px}
+ .homepage>.sale-section .sale-track .price-row b{font-size:15px}
+ .homepage>.sale-section .sale-track .add-cart{min-height:36px;font-size:10px}
+}
+
 /* Focused purchase flow */
 .focus-page .announcement,.focus-page .main-nav,.focus-page .site-footer,.focus-page .searchbox,.focus-page .header-actions,.focus-page .mobile-menu{display:none!important}
 .focus-page{min-height:calc(100vh - 28px)}
