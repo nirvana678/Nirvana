@@ -6,6 +6,7 @@ const bcrypt = require('bcryptjs');
 const { z } = require('zod');
 const { Product, Category, Brand, SalonService, Salonist, User, Appointment } = require('../models');
 const { Section, GalleryWork, StoreSettings } = require('../models/content');
+const defaultStoreSettings = require('../store-settings-defaults');
 const router = express.Router();
 const id = z.string().regex(/^[a-f\d]{24}$/i, 'Choose a valid record.');
 const text = z.string().trim().max(4000);
@@ -58,6 +59,7 @@ for (const [kind, Model] of Object.entries(models)) {
 }
 router.get('/settings', attempt(async (req,res) => res.json(await StoreSettings.findOne({ key: 'store' }).lean() || {})));
 router.put('/settings', attempt(async (req,res) => res.json(await StoreSettings.findOneAndUpdate({ key: 'store' }, siteSchema.parse(req.body), { upsert: true, new: true, runValidators: true }))));
+router.post('/settings/reset', attempt(async (req,res) => res.json(await StoreSettings.findOneAndUpdate({ key: 'store' }, { $set: defaultStoreSettings }, { upsert: true, new: true, runValidators: true }))));
 router.get('/customers', attempt(async (req,res) => res.json(await User.find({role:'customer'}).select('name email phone status createdAt').sort({createdAt:-1}).lean())));
 router.patch('/customers/:id', attempt(async (req,res) => {
   const customer = await User.findOneAndUpdate({_id:id.parse(req.params.id),role:'customer'}, {status:z.enum(['active','suspended']).parse(req.body.status)}, {new:true});
