@@ -1,0 +1,26 @@
+{
+  "name": "nirvana-beauty-salon",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "npm start",
+    "dev:backend": "npm --workspace backend run dev",
+    "dev:frontend": "npm --workspace frontend start",
+    "build": "npm --workspace frontend run build && npm --workspace backend run check",
+    "start": "concurrently -k -n backend,frontend -c magenta,cyan \"npm --workspace backend start\" \"npm --workspace frontend start\"",
+    "seed": "npm --workspace backend run seed"
+  },
+  "devDependencies": {
+    "@angular/common": "22.2.3",
+    "@angular/core": "22.2.3",
+    "concurrently": "^9.2.0"
+  },
+  "overrides": {
+    "@angular/common": "22.2.3",
+    "@angular/core": "22.2.3"
+  }
+}
