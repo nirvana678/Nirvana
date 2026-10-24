@@ -269,3 +269,5 @@ body{font-size:14px}h2,h3{font-weight:600}
 .search-suggestions .suggestion-meta{color:#716673;font-size:11px;line-height:1.35}
 .search-suggestions .search-all{min-height:42px;margin-top:4px;border:1px solid #f4dbe7;font-size:12px}
 @media(max-width:700px){.search-suggestions{position:absolute;top:calc(100% + 7px);left:0;right:0;max-height:min(58vh,480px);padding:9px;border-radius:14px}.search-suggestions>button:not(.search-all){min-height:72px;padding:9px 10px}.search-suggestions>button>img{width:52px;height:52px;flex-basis:52px}}
+
+.field-invalid input,.field-invalid select,.field-invalid textarea{border-color:#c62828!important;box-shadow:0 0 0 2px #c6282818}.field-error{display:block;margin-top:5px;color:#b42318;font-size:12px;font-weight:600;line-height:1.4}.option-row .field-error{grid-column:1/-1}
