@@ -252,3 +252,4 @@ body{font-size:14px}h2,h3{font-weight:600}
  .studio-heading>div{flex:1;min-width:0}
  .studio-heading .button{white-space:nowrap}
 }
+.option-editor{display:grid;gap:14px}.option-row{padding:16px;border:1px solid #f1d7e4;border-radius:14px;background:#fffafd}.option-row>header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.option-row .form-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.option-row label{display:grid;gap:6px}.option-row input{width:100%;min-width:0}.option-editor>.button{justify-self:start}.option-editor>small{color:#756b76}

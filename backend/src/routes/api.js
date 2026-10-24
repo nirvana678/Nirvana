@@ -17,9 +17,11 @@ const publicUser = (user) => ({ id: user.id, name: user.name, email: user.email,
 
 auth.post('/register', async (req, res, next) => {
   try {
-    const body = z.object({ name: z.string().trim().min(2).max(80), email: z.string().email().max(180), password: z.string().min(8).max(128), phone: z.string().max(30).optional() }).parse(req.body);
-    if (await User.exists({ email: body.email.toLowerCase() })) return res.status(409).json({ error: 'An account with this email already exists.' });
-    const user = await User.create({ ...body, email: body.email.toLowerCase(), passwordHash: await bcrypt.hash(body.password, 12) });
+    const body = z.object({ email: z.string().trim().email().max(180), password: z.string().min(8).max(128), phone: z.string().trim().min(7).max(30) }).parse(req.body);
+    const email=body.email.toLowerCase();
+    if (await User.exists({ email })) return res.status(409).json({ error: 'An account with this email already exists.' });
+    const name=email.split('@')[0].replace(/[._-]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase()).slice(0,80)||`Customer ${body.phone.slice(-4)}`;
+    const user = await User.create({ name,email,phone:body.phone,passwordHash: await bcrypt.hash(body.password, 12) });
     res.status(201).json({ token: tokenFor(user), user: publicUser(user) });
   } catch (e) { if (e.name === 'ZodError') return res.status(400).json({ error: e.issues[0].message }); next(e); }
 });
@@ -43,7 +45,7 @@ auth.post('/password', authenticate, async (req, res, next) => {
 
 api.get('/storefront', async (req, res, next) => {
   try {
-    const [settings, sections, categories, brands] = await Promise.all([StoreSettings.findOne({key:'store'}).select('-key -__v').lean(),Section.find({enabled:true}).sort({sortOrder:1,createdAt:1}).populate({path:'featuredProducts',match:{published:true},select:'name brand category image price compareAt stock published'}).lean(),Category.find({active:true}).sort({sortOrder:1}).lean(),Brand.find().sort({name:1}).lean()]);
+    const [settings, sections, categories, brands] = await Promise.all([StoreSettings.findOne({key:'store'}).select('-key -__v').lean(),Section.find({enabled:true}).sort({sortOrder:1,createdAt:1}).populate({path:'featuredProducts',match:{published:true},select:'name brand category image price compareAt stock options published'}).lean(),Category.find({active:true}).sort({sortOrder:1}).lean(),Brand.find().sort({name:1}).lean()]);
     res.json({settings:settings || {},sections,categories,brands});
   } catch(e) { next(e); }
 });
@@ -56,11 +58,13 @@ api.get('/products', async (req, res, next) => {
     const page = Math.max(1, Number(req.query.page) || 1), limit = Math.min(48, Math.max(1, Number(req.query.limit) || 12));
     const filter = { published: true };
     if (req.query.category) filter.category = String(req.query.category);
-    if (req.query.q) filter.$text = { $search: String(req.query.q).slice(0, 80) };
+    const terms=String(req.query.q||'').trim().slice(0,80).split(/\s+/).filter(Boolean).slice(0,8);
+    if(terms.length){const fields=['name','brand','category','description','sku','options.label','options.volume','options.color','options.details','options.sku'];filter.$and=terms.map(term=>{const safe=term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return {$or:fields.map(field=>({[field]:{$regex:safe,$options:'i'}}))}})}
     if (req.query.brand) filter.brand = String(req.query.brand);
     if (req.query.min || req.query.max) filter.price = { ...(req.query.min ? { $gte: Number(req.query.min) } : {}), ...(req.query.max ? { $lte: Number(req.query.max) } : {}) };
     const sort = req.query.sort === 'price-asc' ? { price: 1 } : req.query.sort === 'price-desc' ? { price: -1 } : req.query.sort === 'newest' ? { createdAt: -1 } : { featured: -1, sortOrder: 1, createdAt: -1 };
     const [items, total] = await Promise.all([Product.find(filter).sort(sort).skip((page - 1) * limit).limit(limit).lean(), Product.countDocuments(filter)]);
+    if(terms.length)for(const product of items){const matches=(product.options||[]).filter(option=>{const haystack=[product.name,product.brand,product.category,product.description,product.sku,option.label,option.volume,option.color,option.details,option.sku].join(' ').toLowerCase();return terms.every(term=>haystack.includes(term.toLowerCase()))});product.matchedOptions=matches.length?matches:[]}
     res.json({ items, page, pages: Math.ceil(total / limit), total });
   } catch (e) { next(e); }
 });
@@ -93,19 +97,26 @@ api.get('/salon/availability', async (req, res, next) => {
 api.post('/orders', authenticate, async (req, res, next) => {
   const session = await Product.startSession();
   try {
-    const input = z.object({ items: z.array(z.object({ productId: z.string().refine(objectId), quantity: z.number().int().min(1).max(20), colour:z.string().max(80).optional(), variant:z.string().max(80).optional() })).min(1).max(30), fulfilment:z.enum(['delivery','pickup']).default('delivery'), delivery: z.object({ name: z.string().trim().min(2), email: z.string().email(), phone: z.string().min(7), address: z.string().max(200).default(''), room:z.string().max(100).default(''), landmark:z.string().max(100).default(''), county: z.string().max(100).default(''), town: z.string().max(100).default(''), instructions: z.string().max(500).optional() }), paymentMethod: z.enum(['cash-on-delivery','online']) }).parse(req.body);
+    const input = z.object({ items: z.array(z.object({ productId: z.string().refine(objectId), optionId:z.string().refine(objectId).optional(), quantity: z.number().int().min(1).max(20), colour:z.string().max(80).optional(), variant:z.string().max(80).optional() })).min(1).max(30), fulfilment:z.enum(['delivery','pickup']).default('delivery'), delivery: z.object({ name: z.string().trim().min(2), email: z.string().email(), phone: z.string().min(7), address: z.string().max(200).default(''), room:z.string().max(100).default(''), landmark:z.string().max(100).default(''), county: z.string().max(100).default(''), town: z.string().max(100).default(''), instructions: z.string().max(500).optional() }), paymentMethod: z.enum(['cash-on-delivery','online']) }).parse(req.body);
     if (input.paymentMethod === 'online' && !onlinePaymentsConfigured()) return res.status(503).json({error:'Online payments are being set up. Please choose pay on delivery.'});
     if(input.fulfilment==='delivery' && (!input.delivery.address.trim()||!input.delivery.county.trim()||!input.delivery.town.trim()))return res.status(400).json({error:'Enter your delivery address, town and county.'});
     let created;
     await session.withTransaction(async () => {
       const items = [];
       for (const line of input.items) {
-        const product = await Product.findOneAndUpdate({ _id: line.productId, published: true, stock: { $gte: line.quantity } }, { $inc: { stock: -line.quantity } }, { new: true, session });
+        const current=await Product.findOne({_id:line.productId,published:true}).session(session);
+        if(!current)throw Object.assign(new Error('One or more items are unavailable.'),{status:409});
+        if(current.options?.length&&!line.optionId)throw Object.assign(new Error(`Choose a size, colour or option for ${current.name}.`),{status:400});
+        if(line.optionId&&!current.options?.some(option=>String(option._id)===line.optionId))throw Object.assign(new Error('Choose a valid product option.'),{status:400});
+        const product = line.optionId
+          ? await Product.findOneAndUpdate({_id:line.productId,published:true,options:{$elemMatch:{_id:line.optionId,stock:{$gte:line.quantity}}}},{ $inc:{'options.$.stock':-line.quantity} },{new:true,session})
+          : await Product.findOneAndUpdate({ _id: line.productId, published: true, stock: { $gte: line.quantity },$or:[{options:{$exists:false}},{options:{$size:0}}] }, { $inc: { stock: -line.quantity } }, { new: true, session });
         if (!product) throw Object.assign(new Error('One or more items are unavailable in the requested quantity.'), { status: 409 });
-        const unitPrice = product.compareAt && product.compareAt > product.price ? product.price : product.price;
+        const option=line.optionId?product.options.id(line.optionId):null;
+        const unitPrice = option?.price ?? product.price;
         if(line.colour && !product.colours.includes(line.colour))throw Object.assign(new Error('Choose a valid product colour.'),{status:400});
         if(line.variant && !product.variants.includes(line.variant))throw Object.assign(new Error('Choose a valid product variation.'),{status:400});
-        items.push({ product: product._id, name: product.name, sku: product.sku, colour:line.colour||'', variant:line.variant||'', quantity: line.quantity, unitPrice, lineTotal: unitPrice * line.quantity });
+        items.push({ product: product._id, name: product.name, sku: option?.sku||product.sku, colour:option?.color||line.colour||'', variant:option?[option.label,option.volume,option.details].filter(Boolean).join(' · '):line.variant||'', quantity: line.quantity, unitPrice, lineTotal: unitPrice * line.quantity });
       }
       const settings = await StoreSettings.findOne({key:'store'}).session(session);
       const totals = calculateOrderTotals(items.map(item => ({ quantity: item.quantity, unitPrice: item.unitPrice })), settings?.freeDeliveryAt ?? 5000, settings?.deliveryFee ?? 250);

@@ -10,7 +10,7 @@ async function main(){
  const email=/Email: (.+)/.exec(file)[1].trim(),password=/Password: (.+)/.exec(file)[1].trim();
  const login=await request('POST','/auth/login',{email,password});const token=login.token;
  await request('GET','/admin/products',undefined,undefined,401);
- const unique=Date.now().toString(36);const customer=await request('POST','/auth/register',{name:'Disposable verification customer',email:`verify-${unique}@example.test`,password:`Verify-${unique}-temporary`},undefined,201);created.push([models.User,customer.user.id]);
+ const unique=Date.now().toString(36);const customer=await request('POST','/auth/register',{email:`verify-${unique}@example.test`,password:`Verify-${unique}-temporary`,phone:'0700000000'},undefined,201);created.push([models.User,customer.user.id]);
  await request('GET','/admin/sections',undefined,customer.token,403);
  for(const route of ['dashboard','products','categories','brands','services','salonists','sections','settings','customers','orders','appointments'])await request('GET',`/admin/${route}`,undefined,token);
  console.log('PASS: login, authorization and every dashboard list.');
