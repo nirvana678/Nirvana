@@ -34,4 +34,6 @@ const settingsSchema = new Schema({
 }, { timestamps: true });
 
 for (let index=1;index<=4;index++) settingsSchema.add({[`benefit${index}Title`]:String,[`benefit${index}Text`]:String});
-module.exports = { Section: model('Section', sectionSchema), GalleryWork: model('GalleryWork', galleryWorkSchema), StoreSettings: model('StoreSettings', settingsSchema) };
+const adminDraftSchema=new Schema({owner:{type:Schema.Types.ObjectId,ref:'User',required:true,index:true},kind:{type:String,required:true,enum:['products','categories','brands','services','salonists','sections','gallery','settings']},targetId:{type:String,default:''},title:{type:String,default:'Untitled draft'},form:{type:Schema.Types.Mixed,required:true}},{timestamps:true});
+adminDraftSchema.index({owner:1,updatedAt:-1});
+module.exports = { Section: model('Section', sectionSchema), GalleryWork: model('GalleryWork', galleryWorkSchema), StoreSettings: model('StoreSettings', settingsSchema), AdminDraft:model('AdminDraft',adminDraftSchema) };

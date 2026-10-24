@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const { z } = require('zod');
 const { Product, Category, Brand, SalonService, Salonist, User, Appointment } = require('../models');
-const { Section, GalleryWork, StoreSettings } = require('../models/content');
+const { Section, GalleryWork, StoreSettings, AdminDraft } = require('../models/content');
 const defaultStoreSettings = require('../store-settings-defaults');
 const router = express.Router();
 const id = z.string().regex(/^[a-f\d]{24}$/i, 'Choose a valid record.');
@@ -59,6 +59,10 @@ for (const [kind, Model] of Object.entries(models)) {
     res.json({ message: archivedField ? 'Archived. You can enable this record again in the editor.' : 'Removed.' });
   }));
 }
+const draftInput=z.object({_id:id.optional(),kind:z.enum(['products','categories','brands','services','salonists','sections','gallery','settings']),targetId:z.string().max(80).default(''),title:z.string().trim().max(160).default('Untitled draft'),form:z.record(z.any())});
+router.get('/drafts',attempt(async(req,res)=>res.json(await AdminDraft.find({owner:req.auth.sub}).sort({updatedAt:-1}).lean())));
+router.post('/drafts',attempt(async(req,res)=>{const input=draftInput.parse(req.body);const { _id,...fields }=input;const draft=_id?await AdminDraft.findOneAndUpdate({_id,owner:req.auth.sub},{$set:fields},{new:true,runValidators:true}):null;if(_id&&!draft)return res.status(404).json({error:'Draft not found.'});res.status(_id?200:201).json(draft||await AdminDraft.create({...fields,owner:req.auth.sub}))}));
+router.delete('/drafts/:id',attempt(async(req,res)=>{const draft=await AdminDraft.findOneAndDelete({_id:id.parse(req.params.id),owner:req.auth.sub});if(!draft)return res.status(404).json({error:'Draft not found.'});res.json({message:'Draft deleted.'})}));
 router.get('/settings', attempt(async (req,res) => res.json(await StoreSettings.findOne({ key: 'store' }).lean() || {})));
 router.put('/settings', attempt(async (req,res) => res.json(await StoreSettings.findOneAndUpdate({ key: 'store' }, siteSchema.parse(req.body), { upsert: true, new: true, runValidators: true }))));
 router.post('/settings/reset', attempt(async (req,res) => res.json(await StoreSettings.findOneAndUpdate({ key: 'store' }, { $set: defaultStoreSettings }, { upsert: true, new: true, runValidators: true }))));
