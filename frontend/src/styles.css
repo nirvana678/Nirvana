@@ -271,3 +271,8 @@ body{font-size:14px}h2,h3{font-weight:600}
 @media(max-width:700px){.search-suggestions{position:absolute;top:calc(100% + 7px);left:0;right:0;max-height:min(58vh,480px);padding:9px;border-radius:14px}.search-suggestions>button:not(.search-all){min-height:72px;padding:9px 10px}.search-suggestions>button>img{width:52px;height:52px;flex-basis:52px}}
 
 .field-invalid input,.field-invalid select,.field-invalid textarea{border-color:#c62828!important;box-shadow:0 0 0 2px #c6282818}.field-error{display:block;margin-top:5px;color:#b42318;font-size:12px;font-weight:600;line-height:1.4}.option-row .field-error{grid-column:1/-1}
+
+/* Keep the full storefront document vertically scrollable, including the long homepage on mobile. */
+html,body{min-height:100%;overflow-x:clip;overflow-y:auto;overscroll-behavior-y:auto}
+.store-shell:not(.focus-page){min-height:100dvh;overflow-x:clip;overflow-y:visible}
+@media(max-width:760px){.admin-shell{min-height:100dvh}.studio-sidebar{top:42px;bottom:auto;height:calc(100dvh - 42px);max-height:calc(100dvh - 42px);overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}.studio-sidebar nav{display:flex;flex-direction:column;overflow:visible;overscroll-behavior:initial;touch-action:auto}}

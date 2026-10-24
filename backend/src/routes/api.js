@@ -58,16 +58,25 @@ api.get('/products', async (req, res, next) => {
     const page = Math.max(1, Number(req.query.page) || 1), limit = Math.min(48, Math.max(1, Number(req.query.limit) || 12));
     const filter = { published: true };
     if (req.query.category) filter.category = String(req.query.category);
-    const terms=String(req.query.q||'').trim().slice(0,80).split(/\s+/).filter(Boolean).slice(0,8);
-    if(terms.length){const fields=['name','brand','category','description','sku','options.label','options.volume','options.color','options.details','options.sku','options.attributes.name','options.attributes.value'];filter.$and=terms.map(term=>{const safe=term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return {$or:fields.map(field=>({[field]:{$regex:safe,$options:'i'}}))}})}
+    const terms=searchTerms(req.query.q);
     if (req.query.brand) filter.brand = String(req.query.brand);
     if (req.query.min || req.query.max) filter.price = { ...(req.query.min ? { $gte: Number(req.query.min) } : {}), ...(req.query.max ? { $lte: Number(req.query.max) } : {}) };
     const sort = req.query.sort === 'price-asc' ? { price: 1 } : req.query.sort === 'price-desc' ? { price: -1 } : req.query.sort === 'newest' ? { createdAt: -1 } : { featured: -1, sortOrder: 1, createdAt: -1 };
-    const [items, total] = await Promise.all([Product.find(filter).sort(sort).skip((page - 1) * limit).limit(limit).lean(), Product.countDocuments(filter)]);
-    if(terms.length)for(const product of items){const matches=(product.options||[]).filter(option=>{const attributes=(option.attributes||[]).flatMap(attribute=>[attribute.name,attribute.value]);const haystack=[product.name,product.brand,product.category,product.description,product.sku,option.label,option.volume,option.color,option.details,option.sku,...attributes].join(' ').toLowerCase();return terms.every(term=>haystack.includes(term.toLowerCase()))});product.matchedOptions=matches.length?matches:[]}
+    let items,total;
+    if(terms.length){
+      const fields=['name','brand','category','description','sku','options.label','options.volume','options.color','options.details','options.sku','options.attributes.name','options.attributes.value'];
+      const candidateFilter={...filter,$or:terms.map(term=>{const safe=escapeRegex(term);return {$or:fields.map(field=>({[field]:{$regex:safe,$options:'i'}}))}})};
+      const candidates=await Product.find(candidateFilter).sort(sort).lean();
+      const matching=candidates.flatMap(product=>{const options=product.options||[];if(!options.length){const haystack=normalizeSearchText([product.name,product.brand,product.category,product.description,product.sku].join(' '));return terms.every(term=>haystack.includes(term))?[{...product,matchedOptions:[]}]:[]}const matchedOptions=options.filter(option=>{const attributes=(option.attributes||[]).flatMap(attribute=>[attribute.name,attribute.value]);const haystack=normalizeSearchText([product.name,product.brand,product.category,product.description,product.sku,option.label,option.volume,option.color,option.details,option.sku,...attributes].join(' '));return terms.every(term=>haystack.includes(term))});return matchedOptions.length?[{...product,matchedOptions}]:[]});
+      total=matching.length;items=matching.slice((page-1)*limit,page*limit);
+    }else{[items,total]=await Promise.all([Product.find(filter).sort(sort).skip((page-1)*limit).limit(limit).lean(),Product.countDocuments(filter)])}
     res.json({ items, page, pages: Math.ceil(total / limit), total });
   } catch (e) { next(e); }
 });
+const ignoredSearchWords=new Set(['a','an','and','for','in','of','on','or','the','to','with']);
+function normalizeSearchText(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ')}
+function searchTerms(value){const tokens=normalizeSearchText(String(value||'').slice(0,100)).split(' ').filter(Boolean).slice(0,12);const useful=tokens.filter(token=>!ignoredSearchWords.has(token));return [...new Set(useful.length?useful:tokens)].slice(0,8)}
+function escapeRegex(value){return value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
 api.get('/products/:idOrSlug', async (req, res, next) => { try { const key = req.params.idOrSlug; const product = await Product.findOne(objectId(key) ? { _id: key, published: true } : { slug: key, published: true }).lean(); if (!product) return res.status(404).json({ error: 'Product not found.' }); res.json(product); } catch (e) { next(e); } });
 api.get('/categories', async (req, res, next) => { try { res.json(await Category.find({ active: true }).sort({ sortOrder: 1 }).lean()); } catch (e) { next(e); } });
 api.get('/brands', async (req, res, next) => { try { res.json(await Brand.find().sort({ name: 1 }).lean()); } catch (e) { next(e); } });
