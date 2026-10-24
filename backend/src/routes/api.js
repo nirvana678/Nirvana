@@ -59,12 +59,12 @@ api.get('/products', async (req, res, next) => {
     const filter = { published: true };
     if (req.query.category) filter.category = String(req.query.category);
     const terms=String(req.query.q||'').trim().slice(0,80).split(/\s+/).filter(Boolean).slice(0,8);
-    if(terms.length){const fields=['name','brand','category','description','sku','options.label','options.volume','options.color','options.details','options.sku'];filter.$and=terms.map(term=>{const safe=term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return {$or:fields.map(field=>({[field]:{$regex:safe,$options:'i'}}))}})}
+    if(terms.length){const fields=['name','brand','category','description','sku','options.label','options.volume','options.color','options.details','options.sku','options.attributes.name','options.attributes.value'];filter.$and=terms.map(term=>{const safe=term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return {$or:fields.map(field=>({[field]:{$regex:safe,$options:'i'}}))}})}
     if (req.query.brand) filter.brand = String(req.query.brand);
     if (req.query.min || req.query.max) filter.price = { ...(req.query.min ? { $gte: Number(req.query.min) } : {}), ...(req.query.max ? { $lte: Number(req.query.max) } : {}) };
     const sort = req.query.sort === 'price-asc' ? { price: 1 } : req.query.sort === 'price-desc' ? { price: -1 } : req.query.sort === 'newest' ? { createdAt: -1 } : { featured: -1, sortOrder: 1, createdAt: -1 };
     const [items, total] = await Promise.all([Product.find(filter).sort(sort).skip((page - 1) * limit).limit(limit).lean(), Product.countDocuments(filter)]);
-    if(terms.length)for(const product of items){const matches=(product.options||[]).filter(option=>{const haystack=[product.name,product.brand,product.category,product.description,product.sku,option.label,option.volume,option.color,option.details,option.sku].join(' ').toLowerCase();return terms.every(term=>haystack.includes(term.toLowerCase()))});product.matchedOptions=matches.length?matches:[]}
+    if(terms.length)for(const product of items){const matches=(product.options||[]).filter(option=>{const attributes=(option.attributes||[]).flatMap(attribute=>[attribute.name,attribute.value]);const haystack=[product.name,product.brand,product.category,product.description,product.sku,option.label,option.volume,option.color,option.details,option.sku,...attributes].join(' ').toLowerCase();return terms.every(term=>haystack.includes(term.toLowerCase()))});product.matchedOptions=matches.length?matches:[]}
     res.json({ items, page, pages: Math.ceil(total / limit), total });
   } catch (e) { next(e); }
 });
@@ -116,7 +116,7 @@ api.post('/orders', authenticate, async (req, res, next) => {
         const unitPrice = option?.price ?? product.price;
         if(line.colour && !product.colours.includes(line.colour))throw Object.assign(new Error('Choose a valid product colour.'),{status:400});
         if(line.variant && !product.variants.includes(line.variant))throw Object.assign(new Error('Choose a valid product variation.'),{status:400});
-        items.push({ product: product._id, name: product.name, sku: option?.sku||product.sku, colour:option?.color||line.colour||'', variant:option?[option.label,option.volume,option.details].filter(Boolean).join(' · '):line.variant||'', quantity: line.quantity, unitPrice, lineTotal: unitPrice * line.quantity });
+        items.push({ product: product._id, name: product.name, sku: option?.sku||product.sku, colour:option?.color||line.colour||'', variant:option?[option.label,...(option.attributes||[]).map(attribute=>`${attribute.name}: ${attribute.value}`),option.volume,option.details].filter(Boolean).filter((value,index,array)=>array.indexOf(value)===index).join(' · '):line.variant||'', quantity: line.quantity, unitPrice, lineTotal: unitPrice * line.quantity });
       }
       const settings = await StoreSettings.findOne({key:'store'}).session(session);
       const totals = calculateOrderTotals(items.map(item => ({ quantity: item.quantity, unitPrice: item.unitPrice })), settings?.freeDeliveryAt ?? 5000, settings?.deliveryFee ?? 250);

@@ -2,8 +2,10 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { tap } from 'rxjs';
 import { environment } from './environment';
-export interface ProductOption { _id:string; label:string; volume?:string; color?:string; details?:string; image?:string; sku?:string; price?:number; compareAt?:number; stock:number; }
-export interface Product { _id:string; name:string; slug:string; brand?:string; category?:string; description?:string; image?:string; price:number; compareAt?:number; stock:number; featured?:boolean; rating?:number; colours?:string[]; variants?:string[]; options?:ProductOption[]; matchedOptions?:ProductOption[]; salonUsable?:boolean; salonService?:string; }
+export interface ProductAttribute {name:string;value:string}
+export interface ProductOptionGroup {name:string;values:string[]}
+export interface ProductOption { _id:string; label:string; volume?:string; color?:string; details?:string; attributes?:ProductAttribute[]; image?:string; sku?:string; price?:number; compareAt?:number; stock:number; }
+export interface Product { _id:string; name:string; slug:string; brand?:string; category?:string; description?:string; image?:string; price:number; compareAt?:number; stock:number; featured?:boolean; rating?:number; colours?:string[]; variants?:string[]; optionGroups?:ProductOptionGroup[]; options?:ProductOption[]; matchedOptions?:ProductOption[]; salonUsable?:boolean; salonService?:string; }
 export interface SalonService { _id:string; name:string; category?:string; description?:string; image?:string; durationMinutes:number; price:number; }
 export interface Salonist { _id:string; name:string; bio?:string; phone?:string; specialties?:string[]; image?:string; services?:any[]; chatAvailable?:boolean; }
 @Injectable({providedIn:'root'})
