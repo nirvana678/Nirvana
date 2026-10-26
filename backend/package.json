@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
-    "check": "node --check src/index.js && node --check src/app.js && node --check src/middleware.js && node --check src/routes/api.js && node --check src/routes/assistant.js && node --check src/routes/chat.js && node --check src/routes/payments.js && node --check src/models/index.js && node --check src/seed.js && node --check src/domain.js && node --check src/routes/management.js && node --check src/models/content.js && node --check src/store-settings-defaults.js",
+    "check": "node --check src/index.js && node --check src/app.js && node --check src/middleware.js && node --check src/routes/api.js && node --check src/routes/assistant.js && node --check src/routes/chat.js && node --check src/routes/payments.js && node --check src/models/index.js && node --check src/seed.js && node --check src/domain.js && node --check src/routes/management.js && node --check src/routes/catalogue.js && node --check src/catalogue-scheduler.js && node --check src/models/catalogue.js && node --check src/models/content.js && node --check src/store-settings-defaults.js",
     "test": "node --test",
     "seed": "node src/seed.js && node src/seed-content.js && node src/align-demo-products.js",
     "admin:create": "node src/create-local-admin.js",
@@ -15,6 +15,7 @@
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
+    "exceljs": "^4.4.0",
     "express": "^4.21.2",
     "express-rate-limit": "^7.5.0",
     "helmet": "^8.0.0",

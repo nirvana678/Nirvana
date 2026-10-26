@@ -188,6 +188,7 @@ api.use('/assistant', require('./assistant').router);
 
 api.use('/admin', (req, res, next) => { if (req.path === '/setup') return next(); authenticate(req, res, () => allow('admin')(req, res, next)); });
 api.use('/admin', require('./management').router);
+api.use('/admin/catalogue', require('./catalogue').router);
 api.get('/admin/dashboard', async (req, res, next) => {
   try { const [products, orders, customers, appointments, lowStock, recentOrders, revenue] = await Promise.all([Product.countDocuments(), Order.countDocuments(), User.countDocuments({ role: 'customer' }), Appointment.countDocuments(), Product.countDocuments({ stock: { $lte: 5 } }), Order.find().sort({ createdAt: -1 }).limit(6).populate('customer', 'name email').lean(), Order.aggregate([{ $match: { paymentStatus: 'paid' } }, { $group: { _id: null, total: { $sum: '$total' } } }])]); res.json({ products, orders, customers, appointments, lowStock, revenue: revenue[0]?.total || 0, recentOrders }); } catch (e) { next(e); }
 });

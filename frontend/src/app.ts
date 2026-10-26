@@ -7,9 +7,10 @@ import {StoreApi,Product,SalonService,Salonist} from './api';
 import {AdminComponent} from './admin';
 import {IconComponent} from './icon';
 import {ChatComponent} from './chat';
+import {ThemeService} from './theme';
 @Component({selector:'app-root',standalone:true,imports:[CommonModule,FormsModule,RouterLink,AdminComponent,ChatComponent,IconComponent],templateUrl:'./app.html'})
 export class AppComponent implements OnInit,OnDestroy{
- api=inject(StoreApi);router=inject(Router);cdr=inject(ChangeDetectorRef);routeSub?:Subscription;saleTimer?:number;paymentTimer?:number;searchTimer?:number;
+ api=inject(StoreApi);router=inject(Router);cdr=inject(ChangeDetectorRef);theme=inject(ThemeService);routeSub?:Subscription;saleTimer?:number;paymentTimer?:number;searchTimer?:number;
  page='/';settings:any={businessName:'Nirvana',tagline:'BEAUTY SHOP & SALON',freeDeliveryAt:5000,deliveryFee:250};sections:any[]=[];categories:any[]=[];brands:any[]=[];gallery:any[]=[];galleryCategory='All work';selectedWork:any=null;products:Product[]=[];services:SalonService[]=[];salonists:Salonist[]=[];shopProducts:Product[]=[];product:Product|null=null;shopTotal=0;shopPages=1;shopPage=1;
  loading=true;busy=false;error='';toastText='';mobileOpen=false;search='';suggestions:Product[]=[];suggestionsOpen=false;searchLoading=false;category='';sort='featured';isRegister=false;authForm={email:'',password:'',phone:''};
  cart:{product:Product;quantity:number;colour?:string;variant?:string;optionId?:string;option?:any}[]=this.readCart();
@@ -39,7 +40,9 @@ export class AppComponent implements OnInit,OnDestroy{
  loadBookings(){this.api.get<any[]>('/salon/appointments/mine').subscribe({next:d=>{this.myBookings=d;this.cdr.markForCheck()},error:e=>this.fail(e)})}
  sectionProducts(s:any){const selected=(s.featuredProducts||[]).map((item:any)=>{const id=item?._id||item;return this.products.find(p=>p._id===id)||item}).filter((p:any)=>p&&typeof p==='object'&&p.name);if(selected.length)return selected.slice(0,s.limit||5);return this.products.filter(p=>(!s.category||p.category===s.category)&&(!s.saleOnly||(p.compareAt||0)>p.price)).slice(0,s.limit||5)}
  categoryIcon(name:string){const value=name.toLowerCase();return value.includes('makeup')?'lipstick':value.includes('skin')||value.includes('body')?'bottle':value.includes('fragr')?'perfume':value.includes('nail')?'nail':value.includes('spa')?'leaf':value.includes('tool')?'scissors':'hair'}
- discount(p:Product){return p.compareAt&&p.compareAt>p.price?Math.round((p.compareAt-p.price)/p.compareAt*100):0}
+ productPrice(p:Product,option:any=null){return option?.price??p.matchedOptions?.[0]?.price??p.options?.[0]?.price??p.price}
+ productCompareAt(p:Product,option:any=null){return option?.compareAt??p.matchedOptions?.[0]?.compareAt??p.options?.[0]?.compareAt??p.compareAt??0}
+ discount(p:Product,option:any=null){const price=this.productPrice(p,option),compareAt=this.productCompareAt(p,option);return compareAt>price?Math.round((compareAt-price)/compareAt*100):0}
  optionSummary(option:any){if(!option)return '';const attributes=(option.attributes||[]).map((attribute:any)=>`${attribute.name}: ${attribute.value}`);const legacy=[option.volume,option.color,option.details].filter(Boolean);return [...attributes,...legacy].filter((value,index,array)=>array.findIndex(item=>String(item).toLowerCase()===String(value).toLowerCase())===index).join(' · ')||option.label||''}
  exactProductName(p:Product,option?:any){const summary=this.optionSummary(option);const selectedValues=(option?.attributes||[]).map((attribute:any)=>attribute.value).join(' · ');const label=String(option?.label||'');const custom=label&&label.toLowerCase()!==selectedValues.toLowerCase()&&label.toLowerCase()!==summary.toLowerCase()?label:'';return [p.name,custom,summary].filter(Boolean).join(' — ')}
  selectOptionAttribute(name:string,value:string){this.selectedOptionAttributes={...this.selectedOptionAttributes,[name]:value};const match=this.product?.options?.find(option=>(this.product?.optionGroups||[]).every(group=>this.selectedOptionAttributes[group.name]&&(option.attributes||[]).some(attribute=>attribute.name===group.name&&attribute.value===this.selectedOptionAttributes[group.name])));this.selectedOptionId=match?._id||''}

@@ -9,7 +9,7 @@ const app = express();
 app.use(helmet()); app.use(cors({ origin: (process.env.CLIENT_ORIGIN || 'http://localhost:4200').split(','), credentials: true }));
 app.use('/uploads', express.static(require('path').resolve(__dirname, '../uploads'), { dotfiles: 'deny', maxAge: '7d' }));
 const standardJson = express.json({ limit: '1mb' });
-app.use((req, res, next) => req.path === '/api/admin/media' ? next() : standardJson(req, res, next));
+app.use((req, res, next) => req.path === '/api/admin/media' || req.path.startsWith('/api/admin/catalogue/import') ? next() : standardJson(req, res, next));
 app.use(morgan('tiny'));
 app.get('/api/health', (req, res) => res.json({ status: 'ok', service: 'Nirvana API' }));
 app.use('/api/auth', rateLimit({ windowMs: 15 * 60 * 1000, limit: 60, standardHeaders: true, legacyHeaders: false }), api.auth);
