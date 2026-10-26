@@ -351,6 +351,54 @@ html[data-theme="dark"] ::selection{background:#7b2857;color:white}
 @media(prefers-reduced-motion:reduce){body,.theme-toggle,.site-header,.section,.page-heading,.product-card,.artist-card,.service-card,.product-image,.category-strip>a>span,.catalog-layout,.shop-filters,.catalog-content,.shop-toolbar,.empty-state,.empty-note,.detail-image,.detail-copy,.booking-layout,.booking-form,.booking-summary,.auth-form,.cart-line,.order-summary,.studio-main,.studio-sidebar,.stats-grid article,.admin-summary article,.studio-card,.studio-toolbar,.studio-toolbar>label,.records,.record,.record-picture,.record-editor,.option-row,.payments-panel,.payments-summary article,.chat-layout,.chat-inbox,.chat-room,.chat-welcome,.chat-placeholder,.chat-signin,.assistant-panel,.assistant-transcript,.assistant-signin,.assistant-compose,.assistant-footnote,.assistant-prompts button,.gallery-filters button,.gallery-empty,.gallery-lightbox>div,.home-gallery,.account-shortcut-grid>a{transition:none!important}}
 .catalogue-workspace,.catalogue-tool-panel{display:grid;gap:16px;min-width:0}.catalogue-summary,.catalogue-bulkbar,.catalogue-import-summary{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:13px 16px;background:var(--ui-surface,#fff);border:1px solid var(--ui-line,var(--line));border-radius:10px;font-size:11px}.catalogue-summary span,.catalogue-import-summary span{color:var(--ui-muted,var(--muted))}.catalogue-summary b,.catalogue-import-summary b{color:var(--ui-text,var(--ink));font-size:13px}.catalogue-summary .small-button:first-of-type{margin-left:auto}.catalogue-filters{display:grid;grid-template-columns:minmax(220px,2fr) repeat(4,minmax(120px,1fr)) repeat(2,minmax(100px,.7fr));gap:8px;align-items:center}.catalogue-filters>label{display:flex;align-items:center;gap:8px;padding:0 10px;min-height:40px;background:var(--ui-surface,#fff);border:1px solid var(--ui-line,var(--line));border-radius:8px}.catalogue-filters>label n-icon{width:16px;height:16px;color:var(--ui-muted,var(--muted))}.catalogue-filters input,.catalogue-filters select,.catalogue-import-controls select,.catalogue-price-form input,.catalogue-price-form select{width:100%;min-width:0;min-height:40px;padding:8px 10px;border:1px solid var(--ui-line,var(--line));border-radius:8px;background:var(--ui-surface,#fff);color:var(--ui-text,var(--ink));font-size:11px}.catalogue-filters>label input{border:0;padding-left:0}.catalogue-bulkbar{position:sticky;top:4px;z-index:5;box-shadow:0 6px 18px #28132112}.catalogue-bulkbar .danger-text{margin-left:auto}.catalogue-table-wrap{width:100%;overflow:auto;background:var(--ui-surface,#fff);border:1px solid var(--ui-line,var(--line));border-radius:10px}.catalogue-table{width:100%;min-width:900px;border-collapse:collapse;font-size:11px}.catalogue-table th,.catalogue-table td{padding:11px 12px;text-align:left;border-bottom:1px solid var(--ui-line,var(--line));vertical-align:middle}.catalogue-table th{position:sticky;top:0;background:var(--ui-soft,#fff7fb);color:var(--ui-muted,var(--muted));font-size:9px;text-transform:uppercase;letter-spacing:.06em;z-index:1}.catalogue-table tbody tr:last-child td{border-bottom:0}.catalogue-table td small{display:block}.catalogue-table input[type=checkbox]{width:16px;height:16px;accent-color:var(--pink)}.catalogue-product{display:flex;align-items:center;gap:10px;min-width:220px}.catalogue-product img{width:42px;height:48px;object-fit:contain;background:var(--ui-soft,#fff7fb);border-radius:6px}.catalogue-product b{display:block;max-width:340px;font-size:11px;line-height:1.4}.catalogue-product small,.catalogue-secondary{margin-top:4px;color:var(--ui-muted,var(--muted));font-size:9px}.catalogue-pagination{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--ui-muted,var(--muted));font-size:10px}.catalogue-pagination>div{display:flex;gap:8px}.catalogue-pagination .button{min-height:34px;padding:8px 12px;font-size:10px}.catalogue-empty{text-align:center!important;padding:35px!important;color:var(--ui-muted,var(--muted))}.catalogue-tool-panel{padding:20px;background:var(--ui-surface,#fff);border:1px solid var(--ui-line,var(--line));border-radius:12px}.catalogue-tool-panel>header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}.catalogue-tool-panel>header h2{font-size:18px}.catalogue-tool-panel>header p,.catalogue-help{margin:6px 0 0;color:var(--ui-muted,var(--muted));font-size:10px;line-height:1.6}.catalogue-template-actions{display:flex;gap:8px;flex-wrap:wrap}.catalogue-import-controls,.catalogue-price-form{display:grid;grid-template-columns:1fr 1.5fr auto;align-items:end;gap:12px}.catalogue-import-controls>label,.catalogue-price-form>label{display:grid;gap:6px;color:var(--ui-muted,var(--muted));font-size:10px}.catalogue-file-picker{padding:12px;border:1px dashed #d99bb8;border-radius:8px;color:var(--pink)!important}.catalogue-file-picker input{max-width:100%;font-size:10px}.catalogue-file-picker small{color:var(--ui-muted,var(--muted))}.catalogue-import-controls .button,.catalogue-price-form .button{min-height:40px;white-space:nowrap}.catalogue-import-summary{margin-top:12px}.catalogue-import-summary .button{margin-left:auto;min-height:34px;padding:8px 12px;font-size:10px}.catalogue-errors{display:grid;gap:5px;margin-top:12px;padding:12px;background:#fff3f3;border:1px solid #f1d2d2;border-radius:8px;color:#8a2f37;font-size:10px}.catalogue-history-row{display:grid;grid-template-columns:minmax(180px,1fr) auto auto;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--ui-line,var(--line));font-size:10px}.catalogue-history-row:last-child{border-bottom:0}.catalogue-history-row>div{display:grid;gap:5px}.catalogue-history-row small{color:var(--ui-muted,var(--muted))}.catalogue-price-form{grid-template-columns:repeat(2,minmax(180px,1fr));align-items:end}.catalogue-price-form .button{align-self:end}.catalogue-workspace .status{font-size:9px}
 html[data-theme="dark"] .catalogue-errors{background:#351f28;border-color:#63313e;color:#f5c4cd}
+/* Admin surfaces use several legacy gradient shorthands; clear them in dark mode. */
+html[data-theme="dark"] .admin-shell{background:var(--ui-page);color:var(--ui-text)}
+html[data-theme="dark"] .studio-main{background:var(--ui-page);background-image:none;color:var(--ui-text)}
+html[data-theme="dark"] .studio-heading p,html[data-theme="dark"] .studio-toolbar{color:var(--ui-muted)}
+html[data-theme="dark"] .studio-toolbar>label{background:var(--ui-surface);border-color:var(--ui-line);color:var(--ui-muted)}
+html[data-theme="dark"] .studio-toolbar input{background:transparent;color:var(--ui-text)}
+html[data-theme="dark"] .studio-toolbar input::placeholder{color:var(--ui-muted)}
+html[data-theme="dark"] .studio-sidebar .studio-brand span,html[data-theme="dark"] .studio-sidebar>small{color:var(--ui-muted)}
+html[data-theme="dark"] .empty-state{background:var(--ui-surface);color:var(--ui-text);border-color:var(--ui-line)}
+html[data-theme="dark"] .empty-state h2,html[data-theme="dark"] .empty-state p{color:var(--ui-text)}
+html[data-theme="dark"] .record-editor .editor-footer{background:var(--ui-surface);border-color:var(--ui-line)}
+html[data-theme="dark"] .form-grid label.checkbox-field,html[data-theme="dark"] .check-options>label{background:var(--ui-soft);color:var(--ui-text)}
+html[data-theme="dark"] .record-copy b{color:#ff83bd}
+/* Remove lingering light gradients and fixed white surfaces throughout the storefront. */
+html[data-theme="dark"] .site-header,
+html[data-theme="dark"] .homepage,
+html[data-theme="dark"] .page-heading,
+html[data-theme="dark"] .salon-page-hero,
+html[data-theme="dark"] .booking-layout,
+html[data-theme="dark"] .chat-room,
+html[data-theme="dark"] .assistant-panel,
+html[data-theme="dark"] .assistant-page,
+html[data-theme="dark"] .entry-auth{background:var(--ui-page);background-image:none;color:var(--ui-text)}
+html[data-theme="dark"] .category-strip{background:var(--ui-page);color:var(--ui-text)}
+html[data-theme="dark"] .category-strip>a>span{background:var(--ui-soft);border:1px solid var(--ui-line)}
+html[data-theme="dark"] .auth-form,
+html[data-theme="dark"] .chat-room-head,
+html[data-theme="dark"] .chat-compose,
+html[data-theme="dark"] .chat-payments,
+html[data-theme="dark"] .chat-payments article,
+html[data-theme="dark"] .assistant-message-body,
+html[data-theme="dark"] .assistant-product,
+html[data-theme="dark"] .assistant-artist,
+html[data-theme="dark"] .assistant-prompts button,
+html[data-theme="dark"] .assistant-footnote,
+html[data-theme="dark"] .salon-suggestion,
+html[data-theme="dark"] .fulfilment-choice,
+html[data-theme="dark"] .toast{background:var(--ui-surface);color:var(--ui-text);border-color:var(--ui-line)}
+html[data-theme="dark"] .chat-bubble:not(.mine){background:var(--ui-raised);color:var(--ui-text);border-color:var(--ui-line)}
+html[data-theme="dark"] .chat-day-note{background:var(--ui-soft);color:var(--ui-muted);border-color:var(--ui-line)}
+html[data-theme="dark"] .assistant-message.mine .assistant-message-body{background:linear-gradient(135deg,#8e285f,#632347);color:#fff}
+html[data-theme="dark"] .gallery-hero{background:radial-gradient(circle at 50% 0,#382331,var(--ui-page) 72%);color:var(--ui-text)}
+html[data-theme="dark"] .home-skeleton>*{background:linear-gradient(100deg,#251e29,#332735,#251e29)}
+html[data-theme="dark"] .footer-socials a{background:var(--ui-raised);border-color:var(--ui-line)}
+html[data-theme="dark"] .site-header .brand small,
+html[data-theme="dark"] .product-info>small,
+html[data-theme="dark"] .salon-suggestion small,
+html[data-theme="dark"] .gallery-hero p{color:var(--ui-muted)}
 @media(max-width:1100px){.catalogue-filters{grid-template-columns:repeat(4,minmax(120px,1fr))}.catalogue-filters>label{grid-column:span 2}.catalogue-filters>label:first-child{grid-column:1/-1}}
 @media(max-width:680px){.catalogue-summary{gap:8px}.catalogue-summary .small-button:first-of-type{margin-left:0}.catalogue-filters{grid-template-columns:1fr 1fr}.catalogue-filters>label:first-child{grid-column:1/-1}.catalogue-filters select{font-size:10px}.catalogue-bulkbar{position:static}.catalogue-bulkbar .danger-text{margin-left:0}.catalogue-tool-panel{padding:14px}.catalogue-tool-panel>header{display:grid}.catalogue-import-controls,.catalogue-price-form{grid-template-columns:1fr}.catalogue-history-row{grid-template-columns:1fr;align-items:start}.catalogue-import-summary{align-items:flex-start}.catalogue-import-summary .button{margin-left:0}.catalogue-pagination{align-items:flex-start;flex-direction:column}.catalogue-pagination>div{width:100%}.catalogue-pagination .button{flex:1}}
 .catalogue-image-preview{width:48px;height:48px;object-fit:contain;border-radius:8px;background:var(--surface,#f7f4f6)}
