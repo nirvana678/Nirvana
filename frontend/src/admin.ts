@@ -5,7 +5,6 @@ import {RouterLink} from '@angular/router';
 import {firstValueFrom,forkJoin} from 'rxjs';
 import {StoreApi} from './api';
 import {IconComponent} from './icon';
-import {ThemeService} from './theme';
 type Field={key:string;label:string;type?:string;required?:boolean;options?:string[];hint?:string};
 const f=(key:string,label:string,type='text',required=false,options?:string[],hint?:string):Field=>({key,label,type,required,options,hint});
 const fields:Record<string,Field[]>={
@@ -23,7 +22,7 @@ const fields:Record<string,Field[]>={
 };
 @Component({selector:'admin-studio',standalone:true,imports:[CommonModule,FormsModule,RouterLink,IconComponent],templateUrl:'./admin.html'})
 export class AdminComponent implements OnInit{
- api=inject(StoreApi);cdr=inject(ChangeDetectorRef);theme=inject(ThemeService);@Output() contentChanged=new EventEmitter<void>();
+ api=inject(StoreApi);cdr=inject(ChangeDetectorRef);@Output() contentChanged=new EventEmitter<void>();
  tabs=[['overview','Overview'],['drafts','Saved drafts'],['products','Catalogue'],['imports','Bulk import'],['price-tools','Bulk pricing'],['image-manager','Image manager'],['promotions','Scheduled promotions'],['price-history','Price history'],['categories','Categories'],['brands','Brands'],['services','Salon services'],['salonists','Salon team & hours'],['gallery','Our work gallery'],['appointments','Appointments'],['orders','Orders'],['payments','Payments'],['customers','Customers'],['sections','Homepage sections'],['settings','Store settings'],['account','My password']];
 active='overview';adminMenuOpen=false;rows:any[]=[];stats:any=null;payments:any=null;lookups:any={services:[],salonists:[],customers:[],categories:[],brands:[],products:[]};editing:any=null;form:any={};activeDraftId='';query='';loading=false;saving=false;uploading=false;message='';error='';fieldErrors:Record<string,string>={};archiveId='';staffAccess:any=null;password={currentPassword:'',newPassword:''};
  cataloguePage=1;cataloguePages=1;catalogueTotal=0;catalogueSortBy='updatedAt';catalogueDirection:'asc'|'desc'='desc';catalogueAttention:any={lowStock:0,needsAttention:0};catalogueFilters:any={category:'',brand:'',published:'',stock:'',minPrice:'',maxPrice:''};selectedProductIds:string[]=[];catalogueBusy=false;searchTimer=0;

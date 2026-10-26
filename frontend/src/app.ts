@@ -7,10 +7,9 @@ import {StoreApi,Product,SalonService,Salonist} from './api';
 import {AdminComponent} from './admin';
 import {IconComponent} from './icon';
 import {ChatComponent} from './chat';
-import {ThemeService} from './theme';
 @Component({selector:'app-root',standalone:true,imports:[CommonModule,FormsModule,RouterLink,AdminComponent,ChatComponent,IconComponent],templateUrl:'./app.html'})
 export class AppComponent implements OnInit,OnDestroy{
- api=inject(StoreApi);router=inject(Router);cdr=inject(ChangeDetectorRef);theme=inject(ThemeService);routeSub?:Subscription;saleTimer?:number;paymentTimer?:number;searchTimer?:number;
+ api=inject(StoreApi);router=inject(Router);cdr=inject(ChangeDetectorRef);routeSub?:Subscription;saleTimer?:number;paymentTimer?:number;searchTimer?:number;
  page='/';settings:any={businessName:'Nirvana',tagline:'BEAUTY SHOP & SALON',freeDeliveryAt:5000,deliveryFee:250};sections:any[]=[];categories:any[]=[];brands:any[]=[];gallery:any[]=[];galleryCategory='All work';selectedWork:any=null;products:Product[]=[];services:SalonService[]=[];salonists:Salonist[]=[];shopProducts:Product[]=[];product:Product|null=null;shopTotal=0;shopPages=1;shopPage=1;
  loading=true;busy=false;error='';toastText='';mobileOpen=false;search='';suggestions:Product[]=[];suggestionsOpen=false;searchLoading=false;category='';sort='featured';isRegister=false;authForm={email:'',password:'',phone:''};
  cart:{product:Product;quantity:number;colour?:string;variant?:string;optionId?:string;option?:any}[]=this.readCart();
