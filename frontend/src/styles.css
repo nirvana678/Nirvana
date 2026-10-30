@@ -14,6 +14,8 @@
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 
 
+
+
 .studio-sidebar{min-width:0}.studio-card{min-width:0}.studio-card p{overflow-wrap:anywhere}@media(max-width:760px){.admin-shell{grid-template-columns:minmax(0,1fr)}}
 
 @media(max-width:760px){
@@ -403,3 +405,16 @@ html[data-theme="dark"] .gallery-hero p{color:var(--ui-muted)}
 @media(max-width:680px){.catalogue-summary{gap:8px}.catalogue-summary .small-button:first-of-type{margin-left:0}.catalogue-filters{grid-template-columns:1fr 1fr}.catalogue-filters>label:first-child{grid-column:1/-1}.catalogue-filters select{font-size:10px}.catalogue-bulkbar{position:static}.catalogue-bulkbar .danger-text{margin-left:0}.catalogue-tool-panel{padding:14px}.catalogue-tool-panel>header{display:grid}.catalogue-import-controls,.catalogue-price-form{grid-template-columns:1fr}.catalogue-history-row{grid-template-columns:1fr;align-items:start}.catalogue-import-summary{align-items:flex-start}.catalogue-import-summary .button{margin-left:0}.catalogue-pagination{align-items:flex-start;flex-direction:column}.catalogue-pagination>div{width:100%}.catalogue-pagination .button{flex:1}}
 .catalogue-image-preview{width:48px;height:48px;object-fit:contain;border-radius:8px;background:var(--surface,#f7f4f6)}
 .catalogue-sort{border:0;background:none;color:inherit;font:inherit;font-weight:700;cursor:pointer;padding:0}
+
+@media(max-width:760px){
+ .homepage>.hero{display:flex;flex-direction:column;height:auto;min-height:0;margin:0 -14px;border-radius:0 0 12px 12px}
+ .homepage>.sale-section{order:0}
+ .homepage>.hero .hero-background{position:relative;inset:auto;width:100%;height:clamp(210px,64vw,340px);object-fit:cover;object-position:center;clip-path:none;opacity:1;z-index:auto}
+ .homepage>.hero:after{display:none}
+ .homepage>.hero .hero-copy{width:100%;height:auto;min-height:0;padding:18px 18px 22px;background:linear-gradient(115deg,#c90968,#e51d82 58%,#b90861)}
+ .homepage>.hero .hero-copy h1{max-width:none}
+ .homepage>.salon-promo{display:flex;flex-direction:column;align-items:stretch;min-height:0}
+ .homepage>.salon-promo>img{position:relative;inset:auto;width:100%;height:clamp(190px,58vw,310px);object-fit:cover;object-position:center}
+ .homepage>.salon-promo:after{display:none}
+ .homepage>.salon-promo>div{margin:0;padding:18px 20px 22px}
+}

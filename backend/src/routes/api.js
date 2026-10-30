@@ -47,7 +47,7 @@ auth.post('/password', authenticate, async (req, res, next) => {
 api.get('/storefront', async (req, res, next) => {
   try {
     const [settings, sections, categories, brands] = await Promise.all([StoreSettings.findOne({key:'store'}).select('-key -__v').lean(),Section.find({enabled:true}).sort({sortOrder:1,createdAt:1}).populate({path:'featuredProducts',match:{published:true},select:'name brand category image price compareAt stock options published'}).lean(),Category.find({active:true}).sort({sortOrder:1}).lean(),Brand.find().sort({name:1}).lean()]);
-    res.json({settings:settings || {},sections,categories,brands});
+    res.set('Cache-Control', 'no-store').json({settings:settings || {},sections,categories,brands});
   } catch(e) { next(e); }
 });
 api.get('/gallery', async (req, res, next) => {
