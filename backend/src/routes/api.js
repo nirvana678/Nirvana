@@ -8,6 +8,7 @@ const { calculateOrderTotals } = require('../domain');
 const { Section, GalleryWork, StoreSettings } = require('../models/content');
 const { receiptPdf } = require('../receipt');
 const { sendOrderEmail, sendAppointmentEmail } = require('../notifications');
+const { optionDisplayName, optionSearchText, productSearchText } = require('../product-option-search');
 const { configured: onlinePaymentsConfigured } = require('./payments');
 const api = express.Router();
 const auth = express.Router();
@@ -67,14 +68,14 @@ api.get('/products', async (req, res, next) => {
       const fields=['name','brand','category','description','sku','options.label','options.volume','options.color','options.details','options.sku','options.attributes.name','options.attributes.value'];
       const candidateFilter={...filter,$or:terms.map(term=>{const safe=escapeRegex(term);return {$or:fields.map(field=>({[field]:{$regex:safe,$options:'i'}}))}})};
       const candidates=await Product.find(candidateFilter).sort(sort).lean();
-      const matching=candidates.flatMap(product=>{const options=product.options||[];const productText=normalizeSearchText([product.name,product.brand,product.category,product.description,product.sku].join(' '));if(!options.length)return terms.every(term=>containsSearchTerm(productText,term))?[{...product,matchedOptions:[]}]:[];const matched=options.map(option=>{const attributes=(option.attributes||[]).flatMap(attribute=>[attribute.name,attribute.value]);const optionText=normalizeSearchText([option.label,option.volume,option.color,option.details,option.sku,...attributes].join(' '));const fullText=normalizeSearchText(`${productText} ${optionText}`);return {option,optionText,score:terms.filter(term=>containsSearchTerm(optionText,term)).length,matched:terms.every(term=>containsSearchTerm(fullText,term))}}).filter(result=>result.matched);if(!matched.length)return [];const strongestOptionMatch=Math.max(...matched.map(result=>result.score));return matched.filter(result=>!strongestOptionMatch||result.score===strongestOptionMatch).map(result=>({...product,matchedOptions:[result.option]}))});
+      const matching=candidates.flatMap(product=>{const options=product.options||[];const productText=normalizeSearchText(productSearchText(product));if(!options.length)return terms.every(term=>containsSearchTerm(productText,term))?[{...product,matchedOptions:[]}]:[];const matched=options.map(option=>{const optionText=normalizeSearchText(optionSearchText(option));const fullText=normalizeSearchText(`${productText} ${optionText}`);const exactSku=normalizeSearchText(option.sku)===terms.join(' ');return {option,optionText,score:terms.filter(term=>containsSearchTerm(optionText,term)).length,matched:exactSku||terms.every(term=>containsSearchTerm(fullText,term))}}).filter(result=>result.matched);if(!matched.length)return [];const strongestOptionMatch=Math.max(...matched.map(result=>result.score));return matched.filter(result=>!strongestOptionMatch||result.score===strongestOptionMatch).map(result=>({...product,matchedOptions:[result.option]}))});
       total=matching.length;items=matching.slice((page-1)*limit,page*limit);
     }else{[items,total]=await Promise.all([Product.find(filter).sort(sort).skip((page-1)*limit).limit(limit).lean(),Product.countDocuments(filter)])}
     res.json({ items, page, pages: Math.ceil(total / limit), total });
   } catch (e) { next(e); }
 });
 const ignoredSearchWords=new Set(['a','an','and','for','in','of','on','or','the','to','with']);
-function normalizeSearchText(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ')}
+function normalizeSearchText(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/(\d)(ml|kg|g|l|oz|cl)\b/g,'$1 $2').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ')}
 function containsSearchTerm(text,term){return text.split(' ').some(word=>word.startsWith(term))}
 function searchTerms(value){const tokens=normalizeSearchText(String(value||'').slice(0,100)).split(' ').filter(Boolean).slice(0,12);const useful=tokens.filter(token=>!ignoredSearchWords.has(token));return [...new Set(useful.length?useful:tokens)].slice(0,8)}
 function escapeRegex(value){return value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
@@ -126,7 +127,8 @@ api.post('/orders', authenticate, async (req, res, next) => {
         const unitPrice = option?.price ?? product.price;
         if(line.colour && !product.colours.includes(line.colour))throw Object.assign(new Error('Choose a valid product colour.'),{status:400});
         if(line.variant && !product.variants.includes(line.variant))throw Object.assign(new Error('Choose a valid product variation.'),{status:400});
-        items.push({ product: product._id, name: product.name, sku: option?.sku||product.sku, colour:option?.color||line.colour||'', variant:option?[option.label,...(option.attributes||[]).map(attribute=>`${attribute.name}: ${attribute.value}`),option.volume,option.details].filter(Boolean).filter((value,index,array)=>array.indexOf(value)===index).join(' · '):line.variant||'', quantity: line.quantity, unitPrice, lineTotal: unitPrice * line.quantity });
+        const duplicateOption = option && product.options.filter(item => optionDisplayName(item).toLowerCase() === optionDisplayName(option).toLowerCase()).length > 1;
+        items.push({ product: product._id, name: product.name, sku: option?.sku||product.sku, colour:option?.color||line.colour||'', variant:option?`${optionDisplayName(option)}${duplicateOption ? ` · SKU ${option.sku}` : ''}`:line.variant||'', quantity: line.quantity, unitPrice, lineTotal: unitPrice * line.quantity });
       }
       const settings = await StoreSettings.findOne({key:'store'}).session(session);
       const totals = calculateOrderTotals(items.map(item => ({ quantity: item.quantity, unitPrice: item.unitPrice })), settings?.freeDeliveryAt ?? 5000, settings?.deliveryFee ?? 250);

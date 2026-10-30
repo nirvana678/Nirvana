@@ -68,6 +68,11 @@ router.post('/drafts',attempt(async(req,res)=>{const input=draftInput.parse(req.
 router.delete('/drafts/:id',attempt(async(req,res)=>{const draft=await AdminDraft.findOneAndDelete({_id:id.parse(req.params.id),owner:req.auth.sub});if(!draft)return res.status(404).json({error:'Draft not found.'});res.json({message:'Draft deleted.'})}));
 router.get('/settings', attempt(async (req,res) => res.json(await StoreSettings.findOne({ key: 'store' }).lean() || {})));
 router.put('/settings', attempt(async (req,res) => res.json(await StoreSettings.findOneAndUpdate({ key: 'store' }, siteSchema.parse(req.body), { upsert: true, new: true, runValidators: true }))));
+router.patch('/settings', attempt(async (req,res) => {
+  const current = await StoreSettings.findOne({ key: 'store' }).lean() || {};
+  const input = siteSchema.parse({ ...defaultStoreSettings, ...current, ...req.body });
+  res.json(await StoreSettings.findOneAndUpdate({ key: 'store' }, { $set: input }, { upsert: true, new: true, runValidators: true }));
+}));
 router.post('/settings/reset', attempt(async (req,res) => res.json(await StoreSettings.findOneAndUpdate({ key: 'store' }, { $set: defaultStoreSettings }, { upsert: true, new: true, runValidators: true }))));
 router.get('/customers', attempt(async (req,res) => res.json(await User.find({role:'customer'}).select('name email phone status createdAt').sort({createdAt:-1}).lean())));
 router.patch('/customers/:id', attempt(async (req,res) => {
